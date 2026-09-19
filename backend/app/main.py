@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 import httpx
 
 from app.services.earthquakes import fetch_recent_earthquakes
+from app.services.geocoding import search_locations
 from app.services.weather import fetch_current_weather
 
 app = FastAPI(
@@ -102,4 +103,41 @@ async def get_earthquakes(
         raise HTTPException(
             status_code=500,
             detail="An unexpected error occurred while fetching earthquake data.",
+        )
+
+
+@app.get("/api/geocode")
+async def get_geocode(
+    query: str = Query(
+        ...,
+        min_length=1,
+        max_length=200,
+        description="Location search query (e.g. city name, region, address)",
+    ),
+):
+    """
+    Search for locations matching a text query using OpenStreetMap's Nominatim geocoder.
+    """
+    try:
+        location_data = await search_locations(query)
+        return location_data
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=504,
+            detail="The external geocoding service timed out. Please try again.",
+        )
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"External geocoding provider returned an error: {exc.response.status_code}",
+        )
+    except httpx.RequestError:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to reach the external geocoding provider. Please check network connectivity.",
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred while processing location search.",
         )
