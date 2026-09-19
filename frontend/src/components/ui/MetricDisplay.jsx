@@ -1,0 +1,39 @@
+import { forwardRef } from 'react'
+import { cn } from '@/lib/utils'
+
+export const MetricDisplay = forwardRef(function MetricDisplay(
+  {
+    label,
+    value,
+    unit,
+    icon: Icon,
+    iconColor = 'text-cyan-400',
+    subtext,
+    className,
+    ...props
+  },
+  ref
+) {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 flex flex-col justify-between space-y-1',
+        className
+      )}
+      {...props}
+    >
+      <div className="flex items-center justify-between gap-1.5">
+        <span className="text-xs font-medium text-slate-400 truncate">{label}</span>
+        {Icon && <Icon className={cn('w-3.5 h-3.5 shrink-0', iconColor)} aria-hidden="true" />}
+      </div>
+      <div className="flex items-baseline gap-1 font-tabular">
+        <span className="text-base font-bold text-white tracking-tight">
+          {value !== null && value !== undefined ? value : '—'}
+        </span>
+        {unit && <span className="text-xs font-normal text-slate-400">{unit}</span>}
+      </div>
+      {subtext && <div className="text-[11px] text-slate-500 truncate">{subtext}</div>}
+    </div>
+  )
+})
