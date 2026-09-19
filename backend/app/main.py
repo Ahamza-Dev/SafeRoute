@@ -37,7 +37,13 @@ async def get_weather(
     ),
 ):
     """
-    Fetch current weather metrics (temperature and wind speed) for specified coordinates.
+    Fetch current meteorological metrics for specified coordinates, including:
+    - Temperature
+    - Sustained wind speed
+    - Peak wind gusts
+    - Precipitation accumulation
+    - Precipitation probability
+    - WMO weather code
     """
     try:
         weather_data = await fetch_current_weather(latitude, longitude)
@@ -160,7 +166,13 @@ async def get_location_data(
     ),
 ):
     """
-    Fetch aggregated environmental and seismic data for specified coordinates.
+    Fetch comprehensive situational awareness data for specified coordinates, aggregating:
+    - Current meteorological conditions (temperature, wind gusts, precipitation, weather code)
+    - Recent seismic events within a 250km radius from USGS
+    - SafeRoute deterministic prototype risk assessment
+
+    Important: The risk assessment is an academic/prototype assessment based on available
+    public meteorological and seismic data and is NOT an official alert, forecast, or emergency warning.
     """
     try:
         aggregated_data = await fetch_location_data(latitude, longitude)
