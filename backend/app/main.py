@@ -3,6 +3,7 @@ import httpx
 
 from app.services.earthquakes import fetch_recent_earthquakes
 from app.services.geocoding import search_locations
+from app.services.location import fetch_location_data
 from app.services.weather import fetch_current_weather
 
 app = FastAPI(
@@ -140,4 +141,47 @@ async def get_geocode(
         raise HTTPException(
             status_code=500,
             detail="An unexpected error occurred while processing location search.",
+        )
+
+
+@app.get("/api/location")
+async def get_location_data(
+    latitude: float = Query(
+        ...,
+        ge=-90.0,
+        le=90.0,
+        description="Geographic latitude coordinate (-90.0 to 90.0)",
+    ),
+    longitude: float = Query(
+        ...,
+        ge=-180.0,
+        le=180.0,
+        description="Geographic longitude coordinate (-180.0 to 180.0)",
+    ),
+):
+    """
+    Fetch aggregated environmental and seismic data for specified coordinates.
+    """
+    try:
+        aggregated_data = await fetch_location_data(latitude, longitude)
+        return aggregated_data
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=504,
+            detail="One or more external services timed out. Please try again.",
+        )
+    except httpx.HTTPStatusError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"An external data provider returned an error: {exc.response.status_code}",
+        )
+    except httpx.RequestError:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to reach external data providers. Please check network connectivity.",
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred while aggregating location data.",
         )
