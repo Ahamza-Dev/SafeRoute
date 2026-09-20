@@ -6,8 +6,9 @@ export function AnalysisPathways() {
     {
       id: 'map',
       title: 'Geospatial Map Viewport',
-      milestone: 'Milestone 8E',
-      description: 'Interactive Leaflet canvas with target coordinate centering, epicenter radiuses, and hazard layers.',
+      milestone: 'Milestone 8E (Active)',
+      active: true,
+      description: 'Interactive Leaflet canvas with target coordinate centering and OpenStreetMap geospatial viewport.',
       icon: Compass,
       iconColor: 'text-cyan-400',
     },
@@ -72,7 +73,7 @@ export function AnalysisPathways() {
                 </p>
 
                 <div className="pt-1">
-                  <Badge variant="secondary" size="sm" className="text-[10px]">
+                  <Badge variant={item.active ? 'info' : 'secondary'} size="sm" className="text-[10px]">
                     {item.milestone}
                   </Badge>
                 </div>

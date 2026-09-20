@@ -6,6 +6,7 @@ import { RiskOverviewCard } from './RiskOverviewCard'
 import { WeatherTelemetry } from './WeatherTelemetry'
 import { SeismicTelemetry } from './SeismicTelemetry'
 import { AnalysisPathways } from './AnalysisPathways'
+import { MapView } from '@/components/map'
 import { Button, Card } from '@/components/ui'
 
 export function Dashboard({
@@ -188,6 +189,9 @@ export function Dashboard({
               seismicFactor={data.risk_assessment?.factors?.earthquake}
             />
           </div>
+
+          {/* Interactive Geospatial Map Viewport (Milestone 8E) */}
+          <MapView location={location} />
 
           {/* Deep-Analysis Roadmap Pathways */}
           <AnalysisPathways />
