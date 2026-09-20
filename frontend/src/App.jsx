@@ -1,14 +1,13 @@
 import { useState } from 'react'
 import {
-  Compass,
-  Layers,
   MapPin,
+  Shield,
   Activity,
-  CloudSun,
-  ShieldAlert,
+  CloudRain,
 } from 'lucide-react'
 import { AppShell } from '@/components/layout'
-import { LocationSearch, SelectedLocationCard } from '@/components/location'
+import { LocationSearch } from '@/components/location'
+import { Dashboard } from '@/components/dashboard'
 import { Badge, Card } from '@/components/ui'
 
 function App() {
@@ -17,11 +16,6 @@ function App() {
 
   const handleSelectLocation = (location) => {
     setSelectedLocation(location)
-    setIsEditingLocation(false)
-  }
-
-  const handleClearLocation = () => {
-    setSelectedLocation(null)
     setIsEditingLocation(false)
   }
 
@@ -35,32 +29,25 @@ function App() {
               Situational Intelligence Workspace
             </h1>
             <Badge variant="info" size="sm">
-              {selectedLocation ? 'Target Active' : 'Select Target'}
+              {selectedLocation ? 'Telemetry Active' : 'Select Target'}
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 max-w-3xl leading-relaxed">
-            Location-based disaster risk intelligence platform. Search and select a target location
-            to prepare spatial query boundaries, meteorological telemetry, and seismic overlays.
+            Disaster risk intelligence and environmental awareness platform. Evaluates
+            meteorological parameters, regional seismic activity, and deterministic risk indices.
           </p>
         </section>
 
-        {/* Location Selection Section (Milestone 8C) */}
+        {/* Location Selection Controls */}
         <section aria-label="Location Selection Controls" className="space-y-4">
-          {/* Active Target Card or Search Input */}
-          {selectedLocation && !isEditingLocation ? (
-            <SelectedLocationCard
-              location={selectedLocation}
-              onChangeLocation={() => setIsEditingLocation(true)}
-              onClearLocation={handleClearLocation}
-            />
-          ) : (
+          {(!selectedLocation || isEditingLocation) && (
             <Card variant="elevated" className="p-4 sm:p-5 border-slate-700/80 bg-slate-900/90">
               <LocationSearch
                 onSelectLocation={handleSelectLocation}
                 autoFocus={isEditingLocation}
                 placeholder="Search global coordinates by city, region, or address (e.g. Tokyo, Islamabad, San Francisco)..."
               />
-              {isEditingLocation && (
+              {isEditingLocation && selectedLocation && (
                 <div className="mt-3 flex justify-end">
                   <button
                     type="button"
@@ -75,133 +62,65 @@ function App() {
           )}
         </section>
 
-        {/* Primary Viewport & Dashboard Telemetry Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Main Geospatial Map Container Slot (Target for Milestone 8E: Interactive Map) */}
-          <div className="lg:col-span-8">
-            <Card
-              variant="default"
-              className="h-[420px] sm:h-[480px] flex flex-col items-center justify-center p-6 text-center border-dashed border-slate-700/60 bg-slate-900/30"
-              aria-label="Interactive Map Viewport Placeholder"
-            >
-              <div className="p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 mb-3">
-                <Compass className="w-8 h-8" aria-hidden="true" />
-              </div>
-              <h2 className="text-sm font-semibold text-slate-200 tracking-wide mb-1">
-                Interactive Geospatial Map Viewport (Milestone 8E)
+        {/* Dashboard or Initial State */}
+        {selectedLocation ? (
+          <Dashboard
+            location={selectedLocation}
+            onChangeLocation={() => setIsEditingLocation(true)}
+          />
+        ) : (
+          /* Empty / Initial Prompt State */
+          <Card
+            variant="default"
+            className="p-8 sm:p-12 text-center border-dashed border-slate-700/80 bg-slate-900/30 space-y-4"
+          >
+            <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 w-fit mx-auto">
+              <MapPin className="w-8 h-8" aria-hidden="true" />
+            </div>
+
+            <div className="space-y-1 max-w-md mx-auto">
+              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                No Target Location Selected
               </h2>
-              <p className="text-xs text-slate-400 max-w-md leading-relaxed">
-                {selectedLocation ? (
-                  <>
-                    Target locked for <span className="text-cyan-300 font-semibold">{selectedLocation.name}</span>{' '}
-                    at <span className="font-mono text-slate-300 font-tabular">{selectedLocation.latitude.toFixed(4)}°, {selectedLocation.longitude.toFixed(4)}°</span>.
-                    Interactive map, epicenter markers, and risk radius overlays will render here in Milestone 8E.
-                  </>
-                ) : (
-                  'Search and select a target location above to activate coordinate bounds, seismic radii, and environmental map layers.'
-                )}
-              </p>
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                <Badge variant="secondary" size="sm">Seismic Layer</Badge>
-                <Badge variant="secondary" size="sm">Weather Radar</Badge>
-                <Badge variant="secondary" size="sm">Risk Isoline Overlay</Badge>
-              </div>
-            </Card>
-          </div>
-
-          {/* Main Dashboard Telemetry Slot (Target for Milestone 8D: Main Dashboard) */}
-          <div className="lg:col-span-4 space-y-4">
-            {/* Target Coordinate Telemetry Card */}
-            <Card
-              variant="default"
-              className="p-4 border-dashed border-slate-700/60 bg-slate-900/30 space-y-2"
-              aria-label="Target Coordinates State Placeholder"
-            >
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                <MapPin className="w-4 h-4 text-cyan-400" aria-hidden="true" />
-                <span>Target Coordinate State (Milestone 8C)</span>
-              </div>
-              <div className="text-xs text-slate-300 font-mono font-tabular">
-                {selectedLocation ? (
-                  <div className="space-y-1">
-                    <p className="text-slate-200 font-semibold">{selectedLocation.display_name}</p>
-                    <p className="text-cyan-400">
-                      Lat: {selectedLocation.latitude.toFixed(6)} | Lon: {selectedLocation.longitude.toFixed(6)}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-slate-500 italic">No target location selected.</p>
-                )}
-              </div>
-            </Card>
-
-            {/* Risk Assessment Card Slot */}
-            <Card
-              variant="default"
-              className="p-4 border-dashed border-slate-700/60 bg-slate-900/30 space-y-2"
-              aria-label="Composite Risk Index Placeholder"
-            >
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                <ShieldAlert className="w-4 h-4 text-amber-400" aria-hidden="true" />
-                <span>Risk Assessment (Milestone 8D / 8H)</span>
-              </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                {selectedLocation
-                  ? `Deterministic composite risk calculation prepared for ${selectedLocation.name}.`
-                  : 'Awaiting target location selection...'}
+                Search and select a city or coordinate location above to initialize meteorological telemetry,
+                USGS seismic feeds, and deterministic situational risk scoring.
               </p>
-            </Card>
+            </div>
 
-            {/* Meteorological Telemetry Slot */}
-            <Card
-              variant="default"
-              className="p-4 border-dashed border-slate-700/60 bg-slate-900/30 space-y-2"
-              aria-label="Weather Telemetry Placeholder"
-            >
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                <CloudSun className="w-4 h-4 text-cyan-400" aria-hidden="true" />
-                <span>Weather Telemetry (Milestone 8D / 8F)</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto pt-2 text-left">
+              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-cyan-400">
+                  <CloudRain className="w-3.5 h-3.5" />
+                  <span>Open-Meteo</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Atmospheric metrics, wind velocity, and precipitation conditions.
+                </p>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {selectedLocation
-                  ? `Live Open-Meteo atmospheric metrics prepared for ${selectedLocation.name}.`
-                  : 'Awaiting target location selection...'}
-              </p>
-            </Card>
 
-            {/* Seismic Hazard Feed Slot */}
-            <Card
-              variant="default"
-              className="p-4 border-dashed border-slate-700/60 bg-slate-900/30 space-y-2"
-              aria-label="Seismic Hazard Telemetry Placeholder"
-            >
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                <Activity className="w-4 h-4 text-orange-400" aria-hidden="true" />
-                <span>Seismic Telemetry (Milestone 8D / 8G)</span>
+              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-orange-400">
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>USGS Feeds</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Seismic events (M ≥ 3.0) within a 250km radius over the past 30 days.
+                </p>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {selectedLocation
-                  ? `USGS 250km radius earthquake query prepared for ${selectedLocation.name}.`
-                  : 'Awaiting target location selection...'}
-              </p>
-            </Card>
 
-            {/* Architecture Status Details */}
-            <Card
-              variant="default"
-              className="p-4 border-dashed border-slate-700/60 bg-slate-900/30 space-y-2"
-              aria-label="Architecture Status Details"
-            >
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                <Layers className="w-4 h-4 text-emerald-400" aria-hidden="true" />
-                <span>Architecture Status (Milestone 8C)</span>
+              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Risk Model</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Deterministic weighted composite scoring (0–100 index).
+                </p>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Location search state active. Selected coordinates ready for dashboard & map telemetry ingestion.
-              </p>
-            </Card>
-          </div>
-        </div>
+            </div>
+          </Card>
+        )}
       </div>
     </AppShell>
   )
