@@ -38,7 +38,7 @@ export function SelectedLocationCard({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         {/* Location Identity */}
         <div className="flex items-start gap-3.5 min-w-0">
-          <div className="p-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 shrink-0">
+          <div className="p-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 shrink-0 transition-transform duration-200 hover:scale-105">
             <Navigation className="w-5 h-5" aria-hidden="true" />
           </div>
 
@@ -69,7 +69,7 @@ export function SelectedLocationCard({
 
         {/* Coordinates and Actions */}
         <div className="flex flex-wrap sm:flex-col items-end justify-between sm:justify-center gap-3 w-full sm:w-auto shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
-          <div className="flex items-center gap-2 text-xs text-slate-300 font-tabular font-mono bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800/80">
+          <div className="flex items-center gap-2 text-xs text-slate-300 font-tabular font-mono bg-slate-950/80 px-3 py-1.5 rounded-lg border border-slate-800/80 transition-colors duration-150 hover:border-slate-700">
             <MapPin className="w-3.5 h-3.5 text-cyan-400" aria-hidden="true" />
             <span className="font-semibold text-white">
               {formatCoordinates(location.latitude, location.longitude)}

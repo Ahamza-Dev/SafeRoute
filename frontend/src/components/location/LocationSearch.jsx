@@ -216,7 +216,7 @@ export function LocationSearch({
           autoFocus={autoFocus}
           className={cn(
             'w-full pl-10 pr-10 py-2.5 text-sm bg-slate-900/90 text-slate-100 placeholder-slate-500',
-            'border border-slate-700 rounded-xl transition-all',
+            'border border-slate-700 rounded-xl transition-all duration-200 ease-out',
             'focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30',
             'hover:border-slate-600'
           )}
@@ -233,7 +233,7 @@ export function LocationSearch({
               type="button"
               onClick={handleClear}
               aria-label="Clear location search input"
-              className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+              className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 transition-all duration-150 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
             >
               <X className="w-3.5 h-3.5" aria-hidden="true" />
             </button>

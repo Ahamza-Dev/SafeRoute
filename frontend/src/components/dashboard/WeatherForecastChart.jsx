@@ -216,10 +216,10 @@ export function WeatherForecastChart({
             <button
               type="button"
               onClick={() => setActiveMetric('temperature')}
-              className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+              className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all duration-150 ease-out active:scale-95 ${
                 activeMetric === 'temperature'
-                  ? 'bg-cyan-500/20 text-cyan-300 font-semibold shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-cyan-500/20 text-cyan-300 font-semibold shadow-xs border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
               aria-pressed={activeMetric === 'temperature'}
             >
@@ -228,10 +228,10 @@ export function WeatherForecastChart({
             <button
               type="button"
               onClick={() => setActiveMetric('precipitationProbability')}
-              className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
+              className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all duration-150 ease-out active:scale-95 ${
                 activeMetric === 'precipitationProbability'
-                  ? 'bg-indigo-500/20 text-indigo-300 font-semibold shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-indigo-500/20 text-indigo-300 font-semibold shadow-xs border border-indigo-500/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
               }`}
               aria-pressed={activeMetric === 'precipitationProbability'}
             >

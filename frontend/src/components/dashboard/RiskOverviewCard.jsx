@@ -49,7 +49,7 @@ export function RiskOverviewCard({
 
       <CardContent className="pt-4 space-y-4">
         {/* Score & Core Assessment Hero */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-950/60 border border-slate-800/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 transition-all duration-200 hover:border-slate-700/80">
           <div className="space-y-1.5 max-w-xl">
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">

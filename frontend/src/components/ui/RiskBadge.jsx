@@ -41,6 +41,7 @@ export const RiskBadge = forwardRef(function RiskBadge(
       ref={ref}
       className={cn(
         'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-semibold border tracking-wide select-none',
+        'transition-all duration-200 ease-out',
         style.container,
         className
       )}
@@ -49,7 +50,7 @@ export const RiskBadge = forwardRef(function RiskBadge(
     >
       {showDot && (
         <span
-          className={cn('w-1.5 h-1.5 rounded-full shrink-0', style.indicator)}
+          className={cn('w-1.5 h-1.5 rounded-full shrink-0 transition-colors duration-200', style.indicator)}
           aria-hidden="true"
         />
       )}

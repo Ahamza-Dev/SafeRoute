@@ -60,14 +60,14 @@ export function AnalysisPathways() {
             return (
               <div
                 key={item.id}
-                className="p-3.5 rounded-lg bg-slate-950/40 border border-slate-800/80 space-y-2 opacity-85 hover:opacity-100 transition-opacity"
+                className="group p-3.5 rounded-lg bg-slate-950/40 border border-slate-800/80 space-y-2 opacity-90 hover:opacity-100 transition-all duration-200 hover:border-slate-700/80 hover:bg-slate-900/60 hover:shadow-xs"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-md bg-slate-900 border border-slate-800">
-                      <Icon className={`w-3.5 h-3.5 ${item.iconColor}`} aria-hidden="true" />
+                    <div className="p-1.5 rounded-md bg-slate-900 border border-slate-800 transition-colors duration-200 group-hover:border-slate-700">
+                      <Icon className={`w-3.5 h-3.5 ${item.iconColor} transition-transform duration-200 group-hover:scale-110`} aria-hidden="true" />
                     </div>
-                    <span className="text-xs font-semibold text-slate-200">{item.title}</span>
+                    <span className="text-xs font-semibold text-slate-200 group-hover:text-white transition-colors">{item.title}</span>
                   </div>
                 </div>
 

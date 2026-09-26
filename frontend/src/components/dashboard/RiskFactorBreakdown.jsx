@@ -111,16 +111,16 @@ export function RiskFactorBreakdown({ factors = {} }) {
           return (
             <div
               key={factor.key}
-              className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800/80 space-y-2.5 transition-colors hover:border-slate-700/80"
+              className="group p-3.5 rounded-lg bg-slate-950/60 border border-slate-800/80 space-y-2.5 transition-all duration-200 hover:border-slate-700/90 hover:bg-slate-900/80 hover:shadow-xs"
             >
               {/* Header: Title + Weight + Score */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-md bg-slate-900 border border-slate-800">
-                    <Icon className={`w-3.5 h-3.5 ${factor.colorClass}`} aria-hidden="true" />
+                  <div className="p-1.5 rounded-md bg-slate-900 border border-slate-800 transition-colors duration-200 group-hover:border-slate-700">
+                    <Icon className={`w-3.5 h-3.5 ${factor.colorClass} transition-transform duration-200 group-hover:scale-110`} aria-hidden="true" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-200">
+                    <h4 className="text-xs font-semibold text-slate-200 group-hover:text-white transition-colors">
                       {factor.title}
                     </h4>
                     <span className="text-[10px] text-slate-400 font-mono">
@@ -151,7 +151,7 @@ export function RiskFactorBreakdown({ factors = {} }) {
                   aria-label={`${factor.title} factor score`}
                 >
                   <div
-                    className={`h-full rounded-full ${factor.barClass} transition-all duration-300`}
+                    className={`h-full rounded-full ${factor.barClass} transition-all duration-500 ease-out`}
                     style={{ width: `${Math.max(0, Math.min(100, factor.score ?? 0))}%` }}
                   />
                 </div>
@@ -162,7 +162,7 @@ export function RiskFactorBreakdown({ factors = {} }) {
               </div>
 
               {/* Structured Backend Explanation */}
-              <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/40 p-2 rounded border border-slate-800/60">
+              <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/40 p-2 rounded border border-slate-800/60 transition-colors duration-200 group-hover:border-slate-700/60">
                 {factor.explanation}
               </p>
             </div>
@@ -171,7 +171,7 @@ export function RiskFactorBreakdown({ factors = {} }) {
       </div>
 
       {/* "Why This Score?" Synthesis Box */}
-      <div className="p-3.5 rounded-lg bg-slate-950/40 border border-slate-800/80 space-y-2">
+      <div className="p-3.5 rounded-lg bg-slate-950/40 border border-slate-800/80 space-y-2 transition-all duration-200 hover:border-slate-700/60">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-slate-200">
             Why this score? — Deterministic Synthesis

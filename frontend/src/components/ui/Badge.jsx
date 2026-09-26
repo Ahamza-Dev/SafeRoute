@@ -25,6 +25,7 @@ export const Badge = forwardRef(function Badge(
       ref={ref}
       className={cn(
         'inline-flex items-center gap-1.5 font-medium rounded border tracking-wide uppercase font-tabular select-none',
+        'transition-all duration-200 ease-out',
         badgeVariants[variant] || badgeVariants.default,
         badgeSizes[size] || badgeSizes.md,
         className

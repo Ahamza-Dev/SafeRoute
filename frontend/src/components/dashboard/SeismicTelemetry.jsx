@@ -122,7 +122,7 @@ export function SeismicTelemetry({
 
         {/* Featured / Most Relevant Event Detailed Banner */}
         {featuredEvent ? (
-          <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800/80 space-y-2">
+          <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800/80 space-y-2 transition-all duration-200 hover:border-slate-700/80 hover:bg-slate-900/80">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 rounded text-xs font-bold bg-orange-500/15 text-orange-300 border border-orange-500/30 font-tabular">

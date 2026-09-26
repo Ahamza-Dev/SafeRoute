@@ -15,7 +15,7 @@ export const Card = forwardRef(function Card(
   return (
     <div
       ref={ref}
-      className={cn('text-slate-100 transition-colors', cardVariants[variant] || cardVariants.default, className)}
+      className={cn('text-slate-100 transition-all duration-200', cardVariants[variant] || cardVariants.default, className)}
       {...props}
     >
       {children}

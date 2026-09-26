@@ -29,7 +29,7 @@ export function WeatherTelemetry({
         ) : (
           <>
             {/* Condition Banner */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-950/60 border border-slate-800/80">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-950/60 border border-slate-800/80 transition-all duration-200 hover:border-slate-700/80 hover:bg-slate-900/80">
               <div className="flex items-center gap-2.5">
                 <CloudSun className="w-4 h-4 text-cyan-400" aria-hidden="true" />
                 <span className="text-xs font-semibold text-slate-200">

@@ -52,7 +52,7 @@ function App() {
                   <button
                     type="button"
                     onClick={() => setIsEditingLocation(false)}
-                    className="text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                    className="text-xs text-slate-400 hover:text-slate-200 transition-all duration-150 active:scale-95 cursor-pointer"
                   >
                     Cancel and keep current target ({selectedLocation.name})
                   </button>
@@ -72,9 +72,9 @@ function App() {
           /* Empty / Initial Prompt State */
           <Card
             variant="default"
-            className="p-8 sm:p-12 text-center border-dashed border-slate-700/80 bg-slate-900/30 space-y-4"
+            className="p-8 sm:p-12 text-center border-dashed border-slate-700/80 bg-slate-900/30 space-y-4 animate-fade-in"
           >
-            <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 w-fit mx-auto">
+            <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 w-fit mx-auto transition-transform duration-300 hover:scale-105">
               <MapPin className="w-8 h-8" aria-hidden="true" />
             </div>
 
@@ -89,32 +89,32 @@ function App() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto pt-2 text-left">
-              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1">
+              <div className="group p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1 transition-all duration-200 hover:border-slate-700 hover:bg-slate-900/70 hover:shadow-xs">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-cyan-400">
-                  <CloudRain className="w-3.5 h-3.5" />
+                  <CloudRain className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
                   <span>Open-Meteo</span>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
                   Atmospheric metrics, wind velocity, and precipitation conditions.
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1">
+              <div className="group p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1 transition-all duration-200 hover:border-slate-700 hover:bg-slate-900/70 hover:shadow-xs">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-orange-400">
-                  <Activity className="w-3.5 h-3.5" />
+                  <Activity className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
                   <span>USGS Feeds</span>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
                   Seismic events (M ≥ 3.0) within a 250km radius over the past 30 days.
                 </p>
               </div>
 
-              <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1">
+              <div className="group p-3 rounded-lg bg-slate-950/60 border border-slate-800 space-y-1 transition-all duration-200 hover:border-slate-700 hover:bg-slate-900/70 hover:shadow-xs">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
-                  <Shield className="w-3.5 h-3.5" />
+                  <Shield className="w-3.5 h-3.5 transition-transform duration-200 group-hover:scale-110" />
                   <span>Risk Model</span>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
                   Deterministic weighted composite scoring (0–100 index).
                 </p>
               </div>

@@ -18,7 +18,7 @@ export function SearchResults({
       className={cn(
         'absolute top-full left-0 right-0 mt-2 z-50 overflow-hidden',
         'bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-xl shadow-2xl shadow-black/60',
-        'max-h-80 overflow-y-auto'
+        'max-h-80 overflow-y-auto animate-fade-in'
       )}
     >
       {/* Loading State */}
@@ -93,18 +93,18 @@ export function SearchResults({
                   }
                 }}
                 className={cn(
-                  'group flex items-start gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors select-none',
+                  'group flex items-start gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-150 ease-out select-none',
                   isSelected
-                    ? 'bg-slate-800 text-white'
+                    ? 'bg-slate-800 text-white shadow-xs'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                 )}
               >
                 <div
                   className={cn(
-                    'p-1.5 rounded-md mt-0.5 shrink-0 transition-colors',
+                    'p-1.5 rounded-md mt-0.5 shrink-0 transition-all duration-150',
                     isSelected
                       ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                      : 'bg-slate-800 text-slate-400 group-hover:text-cyan-400'
+                      : 'bg-slate-800 text-slate-400 group-hover:text-cyan-400 group-hover:scale-105'
                   )}
                 >
                   <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
