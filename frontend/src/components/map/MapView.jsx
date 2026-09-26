@@ -88,7 +88,7 @@ export function MapView({
       </CardHeader>
 
       <CardContent className="p-0">
-        <div className="h-[380px] sm:h-[460px] w-full relative">
+        <div className="h-[320px] sm:h-[400px] md:h-[460px] w-full relative">
           <MapContainer
             center={centerCoordinates}
             zoom={zoom}

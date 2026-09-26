@@ -78,11 +78,11 @@ export function RiskOverviewCard({
 
         {/* Visual 0–100 Scale Meter */}
         <div className="space-y-1.5 px-0.5">
-          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-            <span>0 Low</span>
-            <span>25 Moderate</span>
-            <span>50 Elevated</span>
-            <span>75 High</span>
+          <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-400">
+            <span>0<span className="hidden sm:inline"> Low</span></span>
+            <span>25<span className="hidden sm:inline"> Moderate</span></span>
+            <span>50<span className="hidden sm:inline"> Elevated</span></span>
+            <span>75<span className="hidden sm:inline"> High</span></span>
             <span>100</span>
           </div>
 

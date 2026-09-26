@@ -117,6 +117,7 @@ export function SeismicTelemetry({
             subtext={closestEvent?.place ? closestEvent.place.split(',')[0] : 'Distance to target'}
             icon={MapPin}
             iconColor="text-cyan-400"
+            className="col-span-2 sm:col-span-1"
           />
         </div>
 

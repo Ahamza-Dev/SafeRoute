@@ -25,7 +25,7 @@ export function AppShell({
         id="main-content"
         tabIndex={-1}
         className={cn(
-          'flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 focus:outline-none',
+          'flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 focus:outline-none',
           className
         )}
       >

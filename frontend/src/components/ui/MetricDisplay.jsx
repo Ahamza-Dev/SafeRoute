@@ -18,7 +18,7 @@ export const MetricDisplay = forwardRef(function MetricDisplay(
     <div
       ref={ref}
       className={cn(
-        'group bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 flex flex-col justify-between space-y-1',
+        'group bg-slate-950/60 p-2.5 sm:p-3 rounded-lg border border-slate-800/80 flex flex-col justify-between space-y-1',
         'transition-all duration-200 hover:border-slate-700/90 hover:bg-slate-900/80',
         className
       )}
@@ -29,7 +29,7 @@ export const MetricDisplay = forwardRef(function MetricDisplay(
         {Icon && <Icon className={cn('w-3.5 h-3.5 shrink-0 transition-transform duration-200 group-hover:scale-110', iconColor)} aria-hidden="true" />}
       </div>
       <div className="flex items-baseline gap-1 font-tabular">
-        <span className="text-base font-bold text-white tracking-tight">
+        <span className="text-sm sm:text-base font-bold text-white tracking-tight truncate">
           {value !== null && value !== undefined ? value : '—'}
         </span>
         {unit && <span className="text-xs font-normal text-slate-400">{unit}</span>}
