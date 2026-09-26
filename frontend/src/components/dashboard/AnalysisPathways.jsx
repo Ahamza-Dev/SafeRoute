@@ -33,8 +33,9 @@ export function AnalysisPathways() {
     {
       id: 'risk',
       title: 'Multi-Hazard Risk Model',
-      milestone: 'Milestone 8H',
-      description: 'Dynamic factor weight simulations and situational risk sensitivity breakdown.',
+      milestone: 'Milestone 8H (Active)',
+      active: true,
+      description: 'Transparent 4-factor contribution breakdown, deterministic synthesis, and research disclaimer.',
       icon: Layers,
       iconColor: 'text-emerald-400',
     },

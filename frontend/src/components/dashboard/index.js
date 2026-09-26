@@ -1,6 +1,7 @@
 export { Dashboard } from './Dashboard'
 export { LocationHeader } from './LocationHeader'
 export { RiskOverviewCard } from './RiskOverviewCard'
+export { RiskFactorBreakdown } from './RiskFactorBreakdown'
 export { WeatherTelemetry } from './WeatherTelemetry'
 export { WeatherForecastChart } from './WeatherForecastChart'
 export { SeismicTelemetry } from './SeismicTelemetry'
