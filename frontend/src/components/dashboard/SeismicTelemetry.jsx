@@ -23,7 +23,7 @@ export function SeismicTelemetry({
   seismicFactor,
   location,
 }) {
-  const events = earthquakes?.events
+  const isUnavailable = !earthquakes || earthquakes.events === undefined || Boolean(earthquakes.error)
   const radiusKm = earthquakes?.search_radius_km || 250
   const mostRelevant = seismicFactor?.details
 
@@ -32,9 +32,10 @@ export function SeismicTelemetry({
 
   // Calculate distance from target coordinates for every event if coordinates are available
   const enrichedEvents = useMemo(() => {
-    if (!Array.isArray(events) || events.length === 0) return []
+    const rawEvents = earthquakes?.events
+    if (!Array.isArray(rawEvents) || rawEvents.length === 0) return []
 
-    return events.map((e) => {
+    return rawEvents.map((e) => {
       if (!e || typeof e !== 'object') return e
       let dist = e.distance_km
       if (
@@ -51,7 +52,7 @@ export function SeismicTelemetry({
         distance_km: dist,
       }
     })
-  }, [events, targetLat, targetLon])
+  }, [earthquakes?.events, targetLat, targetLon])
 
   // Truthfully find the highest-magnitude event
   const highestMagEvent = useMemo(() => {
@@ -91,30 +92,42 @@ export function SeismicTelemetry({
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <MetricDisplay
             label="Total Events (30d)"
-            value={enrichedEvents.length}
-            subtext={`M ≥ 3.0 within ${radiusKm}km`}
+            value={isUnavailable ? '—' : enrichedEvents.length}
+            subtext={isUnavailable ? 'USGS feed offline' : `M ≥ 3.0 within ${radiusKm}km`}
             icon={Activity}
             iconColor="text-orange-400"
           />
           <MetricDisplay
             label="Highest Magnitude"
             value={
-              highestMagEvent?.magnitude !== null && highestMagEvent?.magnitude !== undefined
-                ? `M ${highestMagEvent.magnitude.toFixed(1)}`
-                : 'None recorded'
+              isUnavailable
+                ? 'Unavailable'
+                : (highestMagEvent?.magnitude !== null && highestMagEvent?.magnitude !== undefined
+                  ? `M ${highestMagEvent.magnitude.toFixed(1)}`
+                  : 'None recorded')
             }
-            subtext={highestMagEvent?.place ? highestMagEvent.place.split(',')[0] : 'No matching events'}
+            subtext={
+              isUnavailable
+                ? 'No seismic data'
+                : (highestMagEvent?.place ? highestMagEvent.place.split(',')[0] : 'No events in 30d')
+            }
             icon={Activity}
             iconColor="text-red-400"
           />
           <MetricDisplay
             label="Closest Event"
             value={
-              closestEvent?.distance_km !== null && closestEvent?.distance_km !== undefined
-                ? `${closestEvent.distance_km} km`
-                : (enrichedEvents.length > 0 ? 'Recorded' : 'None in range')
+              isUnavailable
+                ? 'Unavailable'
+                : (closestEvent?.distance_km !== null && closestEvent?.distance_km !== undefined
+                  ? `${closestEvent.distance_km} km`
+                  : (enrichedEvents.length > 0 ? 'Recorded' : 'None in range'))
             }
-            subtext={closestEvent?.place ? closestEvent.place.split(',')[0] : 'Distance to target'}
+            subtext={
+              isUnavailable
+                ? 'No seismic data'
+                : (closestEvent?.place ? closestEvent.place.split(',')[0] : 'Distance to target')
+            }
             icon={MapPin}
             iconColor="text-cyan-400"
             className="col-span-2 sm:col-span-1"
@@ -122,7 +135,15 @@ export function SeismicTelemetry({
         </div>
 
         {/* Featured / Most Relevant Event Detailed Banner */}
-        {featuredEvent ? (
+        {isUnavailable ? (
+          <div className="flex items-start gap-2.5 p-3.5 rounded-lg bg-slate-950/60 border border-slate-800/80 text-xs text-slate-400">
+            <Activity className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-0.5">
+              <span className="font-semibold text-slate-200 block">Seismic Telemetry Unavailable</span>
+              <span>USGS earthquake feed is temporarily unreachable. Absence of live telemetry does not indicate zero seismic risk.</span>
+            </div>
+          </div>
+        ) : featuredEvent ? (
           <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800/80 space-y-2 transition-all duration-200 hover:border-slate-700/80 hover:bg-slate-900/80">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -155,7 +176,7 @@ export function SeismicTelemetry({
         ) : (
           <div className="flex items-center gap-2.5 p-3 rounded-lg bg-slate-950/60 border border-slate-800 text-xs text-slate-400">
             <Activity className="w-4 h-4 text-slate-500 shrink-0" aria-hidden="true" />
-            <span>No M ≥ 3.0 events recorded within {radiusKm} km in the past 30 days.</span>
+            <span>No M ≥ 3.0 earthquakes recorded within {radiusKm} km in the past 30 days.</span>
           </div>
         )}
 
@@ -163,6 +184,7 @@ export function SeismicTelemetry({
         <EarthquakeActivityChart
           events={enrichedEvents}
           searchRadiusKm={radiusKm}
+          isUnavailable={isUnavailable}
         />
       </CardContent>
     </Card>

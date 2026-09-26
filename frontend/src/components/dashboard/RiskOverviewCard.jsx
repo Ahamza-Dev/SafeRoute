@@ -11,8 +11,10 @@ function getLevelDescription(level) {
     case 'Moderate':
       return 'Moderate atmospheric or seismic indicators present. Standard awareness recommended.'
     case 'Low':
-    default:
       return 'Calm baseline environmental conditions observed across active telemetry feeds.'
+    case 'Unavailable':
+    default:
+      return 'Situational risk assessment is unavailable or awaiting active telemetry feeds.'
   }
 }
 
@@ -20,7 +22,7 @@ export function RiskOverviewCard({
   riskAssessment,
 }) {
   const overallScore = typeof riskAssessment?.overall_score === 'number' ? riskAssessment.overall_score : null
-  const overallLevel = riskAssessment?.overall_level || 'Low'
+  const overallLevel = riskAssessment?.overall_level || (overallScore !== null ? 'Low' : 'Unavailable')
   const factors = riskAssessment?.factors || {}
   const disclaimer = riskAssessment?.disclaimer || (
     'SafeRoute prototype risk assessment based on available public meteorological and seismic data. ' +
@@ -93,7 +95,7 @@ export function RiskOverviewCard({
             aria-valuenow={overallScore ?? 0}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-valuetext={`Score ${overallScore ?? 0} out of 100, ${overallLevel} Risk`}
+            aria-valuetext={overallScore !== null ? `Score ${overallScore} out of 100, ${overallLevel} Risk` : 'Risk assessment score unavailable'}
           >
             <div className="h-full w-1/4 bg-emerald-500/20 border-r border-slate-900" />
             <div className="h-full w-1/4 bg-amber-500/20 border-r border-slate-900" />

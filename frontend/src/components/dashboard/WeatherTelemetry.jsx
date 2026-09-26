@@ -23,8 +23,15 @@ export function WeatherTelemetry({
 
       <CardContent className="pt-4 space-y-4">
         {!hasData && !loading ? (
-          <div className="py-6 text-center text-xs text-slate-500">
-            Meteorological data is currently unavailable for this location.
+          <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-950/60 border border-slate-800/80 text-xs text-slate-400">
+            <CloudRain className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-1">
+              <p className="font-semibold text-slate-200">Meteorological Telemetry Unavailable</p>
+              <p className="text-slate-400 leading-relaxed">
+                Atmospheric readings and hourly forecasts are temporarily unavailable from Open-Meteo feeds.
+                SafeRoute will evaluate other available environmental and seismic vectors.
+              </p>
+            </div>
           </div>
         ) : (
           <>

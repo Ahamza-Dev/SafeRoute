@@ -64,7 +64,7 @@ export function RiskFactorBreakdown({ factors = {} }) {
     return FACTOR_METADATA.map((meta) => {
       const factorData = factors?.[meta.key] || {}
       const rawScore = typeof factorData.score === 'number' ? factorData.score : null
-      const explanation = factorData.explanation || 'No factor data available for this metric.'
+      const explanation = factorData.explanation || 'Telemetry feed for this factor is currently unavailable.'
       const details = factorData.details || null
       const contribution = rawScore !== null ? (rawScore * meta.weight).toFixed(1) : '—'
 
@@ -186,7 +186,9 @@ export function RiskFactorBreakdown({ factors = {} }) {
         <p className="text-xs text-slate-300 leading-relaxed">
           {primaryDriver && primaryDriver.score > 0
             ? `The primary contributor to this situational assessment is ${primaryDriver.title.toLowerCase()} (Score: ${primaryDriver.score}/100, contributing +${primaryDriver.contribution} points), reflecting observed public data: "${primaryDriver.explanation}".`
-            : 'All observed meteorological and seismic vectors currently indicate calm, baseline environmental conditions across public USGS and Open-Meteo feeds.'}
+            : primaryDriver && primaryDriver.score === 0
+            ? 'All observed meteorological and seismic vectors currently indicate calm, baseline environmental conditions across public USGS and Open-Meteo feeds.'
+            : 'Situational hazard factors are currently unavailable or evaluating active telemetry feeds.'}
         </p>
 
         <div className="text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-900 flex flex-wrap items-center gap-x-4 gap-y-1">

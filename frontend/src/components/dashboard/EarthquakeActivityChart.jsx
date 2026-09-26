@@ -89,6 +89,7 @@ function getBarColor(mag) {
 export function EarthquakeActivityChart({
   events = [],
   searchRadiusKm = 250,
+  isUnavailable = false,
   className = '',
 }) {
   const chartData = useMemo(() => {
@@ -176,7 +177,9 @@ export function EarthquakeActivityChart({
   if (!chartData.length) {
     return (
       <div className="py-6 text-center text-xs text-slate-500 rounded-lg bg-slate-950/40 border border-slate-800/80">
-        No M ≥ 3.0 events recorded within {searchRadiusKm} km in the past 30 days.
+        {isUnavailable
+          ? 'Seismic activity timeline is currently unavailable.'
+          : `No M ≥ 3.0 events recorded within ${searchRadiusKm} km in the past 30 days.`}
       </div>
     )
   }

@@ -22,6 +22,16 @@ const riskStyles = {
     indicator: 'bg-red-400',
     label: 'High Risk',
   },
+  Unavailable: {
+    container: 'bg-slate-800 text-slate-400 border-slate-700',
+    indicator: 'bg-slate-500',
+    label: 'Data Unavailable',
+  },
+  Unknown: {
+    container: 'bg-slate-800 text-slate-400 border-slate-700',
+    indicator: 'bg-slate-500',
+    label: 'Unknown Risk',
+  },
   Default: {
     container: 'bg-slate-800 text-slate-300 border-slate-700',
     indicator: 'bg-slate-400',

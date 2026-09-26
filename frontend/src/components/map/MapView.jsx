@@ -58,7 +58,19 @@ export function MapView({
   const markerIcon = useMemo(() => createSelectedLocationIcon(), [])
 
   if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
-    return null
+    return (
+      <Card variant="default" className="overflow-hidden border-slate-700/80">
+        <CardHeader className="pb-3 border-b border-slate-800/80 bg-slate-950/40">
+          <CardTitle className="text-sm font-semibold text-white flex items-center gap-2">
+            <Compass className="w-4 h-4 text-cyan-400" aria-hidden="true" />
+            <span>Geospatial Map Viewport</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-8 text-center text-xs text-slate-500">
+          Geospatial coordinates are unavailable for map rendering.
+        </CardContent>
+      </Card>
+    )
   }
 
   const centerCoordinates = [location.latitude, location.longitude]
