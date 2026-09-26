@@ -187,6 +187,7 @@ export function Dashboard({
             <SeismicTelemetry
               earthquakes={data.earthquakes}
               seismicFactor={data.risk_assessment?.factors?.earthquake}
+              location={data.location || location}
             />
           </div>
 

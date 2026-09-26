@@ -47,3 +47,37 @@ export function formatCoordinates(lat, lon) {
   const lonDir = lon >= 0 ? 'E' : 'W'
   return `${Math.abs(lat).toFixed(4)}° ${latDir}, ${Math.abs(lon).toFixed(4)}° ${lonDir}`
 }
+
+/**
+ * Calculate the great-circle distance between two geographic coordinates in kilometers
+ * using the standard Haversine formula.
+ */
+export function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+  if (
+    typeof lat1 !== 'number' ||
+    typeof lon1 !== 'number' ||
+    typeof lat2 !== 'number' ||
+    typeof lon2 !== 'number'
+  ) {
+    return null
+  }
+  const R = 6371.0 // Earth mean radius in kilometers
+  const toRad = (deg) => (deg * Math.PI) / 180.0
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  const phi1 = toRad(lat1)
+  const phi2 = toRad(lat2)
+
+  const a =
+    Math.sin(dLat / 2.0) ** 2 +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(dLon / 2.0) ** 2
+  const c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a))
+  return Number((R * c).toFixed(1))
+}
+
+export function formatDistance(distanceKm) {
+  if (distanceKm === null || distanceKm === undefined || isNaN(distanceKm)) {
+    return '—'
+  }
+  return `${distanceKm} km`
+}

@@ -24,8 +24,9 @@ export function AnalysisPathways() {
     {
       id: 'seismic',
       title: 'Seismic Feed & Epicenters',
-      milestone: 'Milestone 8G',
-      description: 'Interactive seismic event timeline, magnitude filters, and focal depth distribution.',
+      milestone: 'Milestone 8G (Active)',
+      active: true,
+      description: '30-day seismic activity timeline, magnitude distribution, and focal depth telemetry.',
       icon: Activity,
       iconColor: 'text-orange-400',
     },
