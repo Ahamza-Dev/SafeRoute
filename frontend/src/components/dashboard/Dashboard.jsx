@@ -358,8 +358,11 @@ export function Dashboard({
             />
           </div>
 
-          {/* Interactive Geospatial Map Viewport (Milestone 8E) */}
-          <MapView location={location} />
+          {/* Interactive Geospatial Map Viewport (Milestone 8E / 8N) */}
+          <MapView
+            location={location}
+            earthquakes={data.earthquakes}
+          />
 
           {/* Deep-Analysis Roadmap Pathways */}
           <AnalysisPathways />
