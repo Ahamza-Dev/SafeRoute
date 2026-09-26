@@ -23,7 +23,7 @@ export function SeismicTelemetry({
   seismicFactor,
   location,
 }) {
-  const isUnavailable = !earthquakes || earthquakes.events === undefined || Boolean(earthquakes.error)
+  const isUnavailable = !earthquakes || earthquakes.events === undefined || earthquakes.events === null || earthquakes.status === 'unavailable' || Boolean(earthquakes.error)
   const radiusKm = earthquakes?.search_radius_km || 250
   const mostRelevant = seismicFactor?.details
 

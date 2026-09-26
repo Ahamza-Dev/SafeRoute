@@ -1,4 +1,8 @@
+import logging
+from typing import Any
 import httpx
+
+logger = logging.getLogger(__name__)
 
 OPEN_METEO_BASE_URL = "https://api.open-meteo.com/v1/forecast"
 REQUEST_TIMEOUT_SECONDS = 10.0
@@ -29,6 +33,28 @@ def _clean_unit(unit: str | None, default: str) -> str:
     return unit if unit.strip() else default
 
 
+def _safe_float(value: Any) -> float | None:
+    """Safely convert a value to float, returning None if invalid."""
+    if value is None:
+        return None
+    try:
+        f = float(value)
+        import math
+        return None if math.isnan(f) or math.isinf(f) else f
+    except (ValueError, TypeError):
+        return None
+
+
+def _safe_int(value: Any) -> int | None:
+    """Safely convert a value to int, returning None if invalid."""
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return None
+
+
 async def fetch_current_weather(latitude: float, longitude: float) -> dict:
     """
     Fetch comprehensive current weather conditions and a 24-hour hourly forecast
@@ -43,18 +69,39 @@ async def fetch_current_weather(latitude: float, longitude: float) -> dict:
         "timezone": "auto",
     }
 
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS) as client:
-        response = await client.get(OPEN_METEO_BASE_URL, params=params)
-        response.raise_for_status()
-        data = response.json()
+    try:
+        async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS) as client:
+            response = await client.get(OPEN_METEO_BASE_URL, params=params)
+            response.raise_for_status()
+            data = response.json()
+    except (httpx.TimeoutException, httpx.HTTPStatusError, httpx.RequestError) as exc:
+        logger.warning(
+            "Open-Meteo request failed for coords (%f, %f): %s",
+            latitude,
+            longitude,
+            exc,
+        )
+        raise
+    except ValueError as exc:
+        logger.error(
+            "Open-Meteo returned malformed JSON for coords (%f, %f): %s",
+            latitude,
+            longitude,
+            exc,
+        )
+        raise httpx.RequestError("Invalid JSON received from weather service.") from exc
 
-    current = data.get("current") or {}
-    current_units = data.get("current_units") or {}
-    hourly = data.get("hourly") or {}
-    hourly_units = data.get("hourly_units") or {}
+    if not isinstance(data, dict):
+        logger.error("Open-Meteo returned non-dict response: %s", type(data))
+        raise httpx.RequestError("Unexpected response format from weather service.")
+
+    current = data.get("current") if isinstance(data.get("current"), dict) else {}
+    current_units = data.get("current_units") if isinstance(data.get("current_units"), dict) else {}
+    hourly = data.get("hourly") if isinstance(data.get("hourly"), dict) else {}
+    hourly_units = data.get("hourly_units") if isinstance(data.get("hourly_units"), dict) else {}
 
     current_time = current.get("time")
-    hourly_times = hourly.get("time") or []
+    hourly_times = hourly.get("time") if isinstance(hourly.get("time"), list) else []
 
     # Select the next 24 hourly records starting from the current hour
     start_idx = 0
@@ -69,36 +116,50 @@ async def fetch_current_weather(latitude: float, longitude: float) -> dict:
 
     end_idx = start_idx + 24
 
+    raw_temps = hourly.get("temperature_2m") if isinstance(hourly.get("temperature_2m"), list) else []
+    raw_probs = hourly.get("precipitation_probability") if isinstance(hourly.get("precipitation_probability"), list) else []
+    raw_precips = hourly.get("precipitation") if isinstance(hourly.get("precipitation"), list) else []
+    raw_winds = hourly.get("wind_speed_10m") if isinstance(hourly.get("wind_speed_10m"), list) else []
+    raw_codes = hourly.get("weather_code") if isinstance(hourly.get("weather_code"), list) else []
+
     hourly_forecast = {
         "time": hourly_times[start_idx:end_idx],
-        "temperature": (hourly.get("temperature_2m") or [])[start_idx:end_idx],
+        "temperature": [_safe_float(v) for v in raw_temps[start_idx:end_idx]],
         "temperature_unit": _clean_unit(hourly_units.get("temperature_2m"), "°C"),
-        "precipitation_probability": (hourly.get("precipitation_probability") or [])[start_idx:end_idx],
+        "precipitation_probability": [_safe_int(v) for v in raw_probs[start_idx:end_idx]],
         "precipitation_probability_unit": hourly_units.get("precipitation_probability", "%"),
-        "precipitation": (hourly.get("precipitation") or [])[start_idx:end_idx],
+        "precipitation": [_safe_float(v) for v in raw_precips[start_idx:end_idx]],
         "precipitation_unit": hourly_units.get("precipitation", "mm"),
-        "wind_speed": (hourly.get("wind_speed_10m") or [])[start_idx:end_idx],
+        "wind_speed": [_safe_float(v) for v in raw_winds[start_idx:end_idx]],
         "wind_speed_unit": hourly_units.get("wind_speed_10m", "km/h"),
-        "weather_code": (hourly.get("weather_code") or [])[start_idx:end_idx],
+        "weather_code": [_safe_int(v) for v in raw_codes[start_idx:end_idx]],
     }
 
+    temperature = _safe_float(current.get("temperature_2m"))
+    wind_speed = _safe_float(current.get("wind_speed_10m"))
+    wind_gusts = _safe_float(current.get("wind_gusts_10m"))
+    precipitation = _safe_float(current.get("precipitation"))
+    precipitation_probability = _safe_int(current.get("precipitation_probability"))
+    weather_code = _safe_int(current.get("weather_code"))
+
     return {
+        "status": "available",
         "location": {
             "latitude": latitude,
             "longitude": longitude,
         },
         "weather": {
-            "temperature": current.get("temperature_2m"),
+            "temperature": temperature,
             "temperature_unit": _clean_unit(current_units.get("temperature_2m"), "°C"),
-            "wind_speed": current.get("wind_speed_10m"),
+            "wind_speed": wind_speed,
             "wind_speed_unit": current_units.get("wind_speed_10m", "km/h"),
-            "wind_gusts": current.get("wind_gusts_10m"),
+            "wind_gusts": wind_gusts,
             "wind_gusts_unit": current_units.get("wind_gusts_10m", "km/h"),
-            "precipitation": current.get("precipitation"),
+            "precipitation": precipitation,
             "precipitation_unit": current_units.get("precipitation", "mm"),
-            "precipitation_probability": current.get("precipitation_probability"),
+            "precipitation_probability": precipitation_probability,
             "precipitation_probability_unit": current_units.get("precipitation_probability", "%"),
-            "weather_code": current.get("weather_code"),
+            "weather_code": weather_code,
             "hourly_forecast": hourly_forecast,
         },
         "source": "Open-Meteo",

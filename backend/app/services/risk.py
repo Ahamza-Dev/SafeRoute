@@ -1,5 +1,9 @@
 from datetime import datetime, timezone
+import logging
 import math
+from typing import Any, Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -24,12 +28,20 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
 
 
 def calculate_earthquake_score(
-    user_lat: float, user_lon: float, earthquake_data: dict
-) -> dict:
+    user_lat: float, user_lon: float, earthquake_data: Optional[Dict[str, Any]]
+) -> Dict[str, Any]:
     """
     Calculate a prototype seismic factor (0-100) based on the most relevant recent earthquake.
     Considers magnitude, distance attenuation (Haversine), depth, and recency.
     """
+    if earthquake_data is None or earthquake_data.get("status") == "unavailable":
+        return {
+            "score": None,
+            "status": "unavailable",
+            "details": None,
+            "explanation": "Seismic monitoring data is currently unavailable from the provider.",
+        }
+
     # Support both full earthquake service response or nested events list
     events = (
         earthquake_data.get("events")
@@ -37,9 +49,18 @@ def calculate_earthquake_score(
         else earthquake_data.get("earthquakes", [])
     )
 
-    if not events:
+    if events is None:
+        return {
+            "score": None,
+            "status": "unavailable",
+            "details": None,
+            "explanation": "Seismic monitoring data is currently unavailable from the provider.",
+        }
+
+    if len(events) == 0:
         return {
             "score": 0,
+            "status": "available",
             "details": None,
             "explanation": "No earthquakes of magnitude >= 3.0 recorded within 250km in the past 30 days.",
         }
@@ -50,6 +71,8 @@ def calculate_earthquake_score(
     most_relevant_distance = None
 
     for event in events:
+        if not isinstance(event, dict):
+            continue
         eq_lat = event.get("latitude")
         eq_lon = event.get("longitude")
         mag = event.get("magnitude")
@@ -135,12 +158,13 @@ def calculate_earthquake_score(
 
     return {
         "score": final_score,
+        "status": "available",
         "details": details,
         "explanation": explanation,
     }
 
 
-def calculate_wind_score(weather_data: dict) -> dict:
+def calculate_wind_score(weather_data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Calculate a prototype wind factor (0-100) using wind gusts and sustained wind speed.
     Thresholds:
@@ -150,10 +174,34 @@ def calculate_wind_score(weather_data: dict) -> dict:
       70-89 km/h  -> 75
       90+ km/h    -> 100
     """
+    if not weather_data or weather_data.get("status") == "unavailable":
+        return {
+            "score": None,
+            "status": "unavailable",
+            "details": {
+                "wind_speed": None,
+                "wind_gusts": None,
+                "unit": "km/h",
+            },
+            "explanation": "Wind telemetry is currently unavailable from the weather provider.",
+        }
+
     gusts = weather_data.get("wind_gusts")
     speed = weather_data.get("wind_speed")
 
-    effective_wind = gusts if gusts is not None else (speed if speed is not None else 0.0)
+    if gusts is None and speed is None:
+        return {
+            "score": None,
+            "status": "unavailable",
+            "details": {
+                "wind_speed": None,
+                "wind_gusts": None,
+                "unit": weather_data.get("wind_gusts_unit") or weather_data.get("wind_speed_unit") or "km/h",
+            },
+            "explanation": "Wind telemetry is currently unavailable from the weather provider.",
+        }
+
+    effective_wind = gusts if gusts is not None else speed
 
     if effective_wind < 30.0:
         score = 0
@@ -173,6 +221,7 @@ def calculate_wind_score(weather_data: dict) -> dict:
 
     return {
         "score": score,
+        "status": "available",
         "details": {
             "wind_speed": speed,
             "wind_gusts": gusts,
@@ -182,40 +231,71 @@ def calculate_wind_score(weather_data: dict) -> dict:
     }
 
 
-def calculate_precipitation_score(weather_data: dict) -> dict:
+def calculate_precipitation_score(weather_data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Calculate a prototype precipitation factor (0-100) using accumulation and probability.
     Note: Indicates precipitation intensity; does not predict flooding.
     """
-    precip = weather_data.get("precipitation") or 0.0
-    prob = weather_data.get("precipitation_probability") or 0
+    if not weather_data or weather_data.get("status") == "unavailable":
+        return {
+            "score": None,
+            "status": "unavailable",
+            "details": {
+                "precipitation": None,
+                "precipitation_unit": "mm",
+                "precipitation_probability": None,
+                "precipitation_probability_unit": "%",
+            },
+            "explanation": "Precipitation telemetry is currently unavailable from the weather provider.",
+        }
 
-    if precip >= 15.0:
+    precip = weather_data.get("precipitation")
+    prob = weather_data.get("precipitation_probability")
+
+    if precip is None and prob is None:
+        return {
+            "score": None,
+            "status": "unavailable",
+            "details": {
+                "precipitation": None,
+                "precipitation_unit": weather_data.get("precipitation_unit", "mm"),
+                "precipitation_probability": None,
+                "precipitation_probability_unit": weather_data.get("precipitation_probability_unit", "%"),
+            },
+            "explanation": "Precipitation telemetry is currently unavailable from the weather provider.",
+        }
+
+    # If only one is present, safely default the other for scoring
+    effective_precip = precip if precip is not None else 0.0
+    effective_prob = prob if prob is not None else 0
+
+    if effective_precip >= 15.0:
         score = 100
-        explanation = f"Very heavy precipitation recorded ({precip:.1f} mm)."
-    elif precip >= 7.5:
+        explanation = f"Very heavy precipitation recorded ({effective_precip:.1f} mm)."
+    elif effective_precip >= 7.5:
         score = 75
-        explanation = f"Heavy precipitation recorded ({precip:.1f} mm)."
-    elif precip >= 2.5:
+        explanation = f"Heavy precipitation recorded ({effective_precip:.1f} mm)."
+    elif effective_precip >= 2.5:
         score = 50
-        explanation = f"Moderate precipitation recorded ({precip:.1f} mm)."
-    elif precip > 0.0:
+        explanation = f"Moderate precipitation recorded ({effective_precip:.1f} mm)."
+    elif effective_precip > 0.0:
         score = 25
-        explanation = f"Light precipitation observed ({precip:.1f} mm)."
+        explanation = f"Light precipitation observed ({effective_precip:.1f} mm)."
     else:
         # Dry right now, check probability
-        if prob >= 75:
+        if effective_prob >= 75:
             score = 25
-            explanation = f"Currently dry, but high likelihood of precipitation ({prob}% probability)."
-        elif prob >= 40:
+            explanation = f"Currently dry, but high likelihood of precipitation ({effective_prob}% probability)."
+        elif effective_prob >= 40:
             score = 15
-            explanation = f"Currently dry with moderate precipitation likelihood ({prob}% probability)."
+            explanation = f"Currently dry with moderate precipitation likelihood ({effective_prob}% probability)."
         else:
             score = 0
-            explanation = f"Dry conditions with low precipitation probability ({prob}%)."
+            explanation = f"Dry conditions with low precipitation probability ({effective_prob}%)."
 
     return {
         "score": score,
+        "status": "available",
         "details": {
             "precipitation": precip,
             "precipitation_unit": weather_data.get("precipitation_unit", "mm"),
@@ -258,11 +338,33 @@ WMO_WEATHER_CODE_MAP = {
 }
 
 
-def calculate_severe_weather_score(weather_data: dict) -> dict:
+def calculate_severe_weather_score(weather_data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Calculate a prototype severe weather factor (0-100) using the standard WMO weather code.
     """
+    if not weather_data or weather_data.get("status") == "unavailable":
+        return {
+            "score": None,
+            "status": "unavailable",
+            "details": {
+                "weather_code": None,
+                "description": "Unavailable",
+            },
+            "explanation": "Atmospheric condition data is currently unavailable from the weather provider.",
+        }
+
     code = weather_data.get("weather_code")
+    if code is None:
+        return {
+            "score": None,
+            "status": "unavailable",
+            "details": {
+                "weather_code": None,
+                "description": "Unavailable",
+            },
+            "explanation": "Atmospheric condition data is currently unavailable from the weather provider.",
+        }
+
     score, description = WMO_WEATHER_CODE_MAP.get(code, (0, "Normal / Unspecified conditions"))
 
     if score == 0:
@@ -272,6 +374,7 @@ def calculate_severe_weather_score(weather_data: dict) -> dict:
 
     return {
         "score": score,
+        "status": "available",
         "details": {
             "weather_code": code,
             "description": description,
@@ -283,9 +386,9 @@ def calculate_severe_weather_score(weather_data: dict) -> dict:
 def calculate_risk_assessment(
     latitude: float,
     longitude: float,
-    weather_data: dict,
-    earthquake_data: dict,
-) -> dict:
+    weather_data: Optional[Dict[str, Any]],
+    earthquake_data: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
     """
     Calculate the overall SafeRoute prototype risk assessment from weather and earthquake inputs.
     Weights:
@@ -295,7 +398,14 @@ def calculate_risk_assessment(
       - Severe Weather: 15%
     """
     # Extract nested structures if full responses were passed
-    normalized_weather = weather_data.get("weather") if "weather" in weather_data else weather_data
+    if isinstance(weather_data, dict) and "weather" in weather_data:
+        if weather_data.get("status") == "unavailable":
+            normalized_weather = {"status": "unavailable"}
+        else:
+            normalized_weather = weather_data.get("weather") or {}
+    else:
+        normalized_weather = weather_data
+
     normalized_earthquakes = earthquake_data
 
     # Calculate individual factors
@@ -304,38 +414,53 @@ def calculate_risk_assessment(
     precip_factor = calculate_precipitation_score(normalized_weather)
     severe_factor = calculate_severe_weather_score(normalized_weather)
 
-    # Weighted composite score
-    overall_score = round(
-        (eq_factor["score"] * 0.40)
-        + (wind_factor["score"] * 0.25)
-        + (precip_factor["score"] * 0.20)
-        + (severe_factor["score"] * 0.15)
-    )
-    overall_score = max(0, min(100, overall_score))
+    factors = {
+        "earthquake": eq_factor,
+        "wind": wind_factor,
+        "precipitation": precip_factor,
+        "severe_weather": severe_factor,
+    }
 
-    # Determine qualitative risk level
-    if overall_score < 25:
-        overall_level = "Low"
-    elif overall_score < 50:
-        overall_level = "Moderate"
-    elif overall_score < 75:
-        overall_level = "Elevated"
+    unavailable_factors = [k for k, v in factors.items() if v.get("score") is None or v.get("status") == "unavailable"]
+
+    if len(unavailable_factors) == 4:
+        overall_score = None
+        overall_level = "Unavailable"
+        assessment_status = "unavailable"
+    elif len(unavailable_factors) > 0:
+        overall_score = None
+        overall_level = "Unavailable"
+        assessment_status = "partial"
     else:
-        overall_level = "High"
+        assessment_status = "available"
+        # Weighted composite score
+        overall_score = round(
+            (eq_factor["score"] * 0.40)
+            + (wind_factor["score"] * 0.25)
+            + (precip_factor["score"] * 0.20)
+            + (severe_factor["score"] * 0.15)
+        )
+        overall_score = max(0, min(100, overall_score))
+
+        # Determine qualitative risk level
+        if overall_score < 25:
+            overall_level = "Low"
+        elif overall_score < 50:
+            overall_level = "Moderate"
+        elif overall_score < 75:
+            overall_level = "Elevated"
+        else:
+            overall_level = "High"
 
     return {
         "location": {
             "latitude": latitude,
             "longitude": longitude,
         },
+        "status": assessment_status,
         "overall_score": overall_score,
         "overall_level": overall_level,
-        "factors": {
-            "earthquake": eq_factor,
-            "wind": wind_factor,
-            "precipitation": precip_factor,
-            "severe_weather": severe_factor,
-        },
+        "factors": factors,
         "disclaimer": (
             "SafeRoute prototype risk assessment based on available public meteorological "
             "and seismic data. Not an official alert, forecast, or emergency warning."

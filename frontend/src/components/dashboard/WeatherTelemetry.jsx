@@ -7,7 +7,7 @@ export function WeatherTelemetry({
   weather,
   loading = false,
 }) {
-  const hasData = Boolean(weather && Object.keys(weather).length > 0)
+  const hasData = Boolean(weather && Object.keys(weather).length > 0 && weather.status !== 'unavailable')
 
   return (
     <Card variant="default" className="overflow-hidden border-slate-700/80">

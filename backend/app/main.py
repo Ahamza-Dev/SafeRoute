@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
@@ -6,6 +7,8 @@ from app.services.earthquakes import fetch_recent_earthquakes
 from app.services.geocoding import search_locations
 from app.services.location import fetch_location_data
 from app.services.weather import fetch_current_weather
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="SafeRoute API",
