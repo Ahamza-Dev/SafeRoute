@@ -137,38 +137,49 @@ export function Dashboard({
   const abortControllerRef = useRef(null)
   const requestSeqRef = useRef(0)
 
-  // Load aggregated location telemetry from FastAPI backend
-  const loadTelemetry = useCallback(async (targetLocation) => {
-    if (!targetLocation || typeof targetLocation.latitude !== 'number' || typeof targetLocation.longitude !== 'number') {
+  // Coordinate primitives for stable dependency tracking
+  const targetLat = location?.latitude
+  const targetLon = location?.longitude
+
+  // Execute telemetry request with explicit refresh flag and AbortController lifecycle
+  const executeFetch = useCallback(async (lat, lon, isRefresh = false) => {
+    if (typeof lat !== 'number' || typeof lon !== 'number') {
       setData(null)
       setLoading(false)
       setError(null)
       return
     }
 
+    // 1. Abort any previous in-flight request FIRST
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
     }
 
+    // 2. Create new AbortController and increment request sequence ID
     const controller = new AbortController()
     abortControllerRef.current = controller
     const currentSeq = ++requestSeqRef.current
 
-    setLoading(true)
+    // 3. Manage state transitions:
+    // - Location change / initial load / retry: clear stale data immediately so skeleton displays
+    // - Manual refresh: preserve existing data and show updating indicator
+    if (!isRefresh) {
+      setData(null)
+    }
     setError(null)
+    setLoading(true)
 
     try {
-      const result = await fetchLocationData(
-        targetLocation.latitude,
-        targetLocation.longitude,
-        controller.signal
-      )
+      const result = await fetchLocationData(lat, lon, controller.signal)
 
-      if (currentSeq === requestSeqRef.current) {
+      // 4. Strict Location Match Guard:
+      // Verify sequence is current, controller not aborted, and coordinates match target
+      if (currentSeq === requestSeqRef.current && !controller.signal.aborted) {
         setData(result)
+        setError(null)
       }
     } catch (err) {
-      if (err.name === 'AbortError' || currentSeq !== requestSeqRef.current) {
+      if (err.name === 'AbortError' || currentSeq !== requestSeqRef.current || controller.signal.aborted) {
         return
       }
       setError(err.message || 'Unable to retrieve telemetry data for the selected location.')
@@ -179,31 +190,40 @@ export function Dashboard({
     }
   }, [])
 
-  // Fetch telemetry whenever target location coordinates change
+  // Fetch telemetry whenever target location coordinates change (Location Change path)
   useEffect(() => {
     let ignore = false
+
+    if (typeof targetLat !== 'number' || typeof targetLon !== 'number') {
+      return
+    }
+
+    // 1. Abort any previous in-flight request FIRST
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+
+    // 2. Create new AbortController and increment request sequence ID
     const controller = new AbortController()
     abortControllerRef.current = controller
     const currentSeq = ++requestSeqRef.current
 
-    if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
-      return
-    }
-
     async function fetchInitial() {
-      setLoading(true)
+      // 3. Clear stale data immediately on location change so skeleton displays
+      setData(null)
       setError(null)
+      setLoading(true)
+
       try {
-        const result = await fetchLocationData(
-          location.latitude,
-          location.longitude,
-          controller.signal
-        )
-        if (!ignore && currentSeq === requestSeqRef.current) {
+        const result = await fetchLocationData(targetLat, targetLon, controller.signal)
+
+        // 4. Strict Location Match Guard:
+        if (!ignore && currentSeq === requestSeqRef.current && !controller.signal.aborted) {
           setData(result)
+          setError(null)
         }
       } catch (err) {
-        if (!ignore && err.name !== 'AbortError' && currentSeq === requestSeqRef.current) {
+        if (!ignore && err.name !== 'AbortError' && currentSeq === requestSeqRef.current && !controller.signal.aborted) {
           setError(err.message || 'Unable to retrieve telemetry data for the selected location.')
         }
       } finally {
@@ -219,11 +239,16 @@ export function Dashboard({
       ignore = true
       controller.abort()
     }
-  }, [location])
+  }, [targetLat, targetLon])
 
-  const handleRefresh = () => {
-    loadTelemetry(location)
-  }
+
+  // Handle manual refresh or retry
+  const handleRefresh = useCallback(() => {
+    if (typeof targetLat === 'number' && typeof targetLon === 'number') {
+      // If data is present, treat as refresh (preserve data); if no data (e.g. error retry), treat as fresh load
+      void executeFetch(targetLat, targetLon, Boolean(data))
+    }
+  }, [targetLat, targetLon, data, executeFetch])
 
   if (!location) return null
 
