@@ -15,8 +15,9 @@ export function AnalysisPathways() {
     {
       id: 'weather',
       title: 'Atmospheric Curves & Trends',
-      milestone: 'Milestone 8F',
-      description: 'Hourly precipitation accumulation, barometric pressure shifts, and wind velocity charts.',
+      milestone: 'Milestone 8F (Active)',
+      active: true,
+      description: '24-hour hourly temperature trends, precipitation probability projections, and atmospheric metrics.',
       icon: CloudSun,
       iconColor: 'text-blue-400',
     },

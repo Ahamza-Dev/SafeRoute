@@ -1,6 +1,7 @@
 import { CloudRain, Wind, Thermometer, CloudSun, Compass } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardContent, MetricDisplay, Badge } from '@/components/ui'
 import { getWmoWeatherDescription } from '@/lib/utils'
+import { WeatherForecastChart } from './WeatherForecastChart'
 
 export function WeatherTelemetry({
   weather,
@@ -84,6 +85,9 @@ export function WeatherTelemetry({
                 iconColor="text-emerald-400"
               />
             </div>
+
+            {/* 24-Hour Hourly Forecast Visualization (Milestone 8F) */}
+            <WeatherForecastChart forecast={weather?.hourly_forecast} />
           </>
         )}
       </CardContent>
